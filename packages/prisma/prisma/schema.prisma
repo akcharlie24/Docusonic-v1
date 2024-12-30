@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(uuid())
+  username String  @unique
+  password String
+  sheets   Sheet[]
+  events   Event[]
+}
+
+model Sheet {
+  id           String  @id @default(uuid())
+  title        String
+  slug         String  @unique
+  events       Event[]
+  userId       String
+  user         User    @relation(fields: [userId], references: [id])
+  content      String
+  lastUpdateId Int
+}
+
+model Event {
+  id         Int      @id @default(autoincrement())
+  type       EditType
+  lineNumber Int
+  column     Int
+  content    String
+  sheetId    String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  sheet      Sheet    @relation(fields: [sheetId], references: [id])
+}
+
+enum EditType {
+  ADD
+  DELETE
+}
